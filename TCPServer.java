@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Scanner;
 
 class TCPServer
 {
@@ -14,13 +16,11 @@ class TCPServer
          
          BufferedReader inFromClient =
                  new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-
+         boolean closed = true;
          while(true)
          {
         	clientSentence = null;
-        	 
-            
-           
+
             DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
             clientSentence = inFromClient.readLine();
             
@@ -28,35 +28,23 @@ class TCPServer
             
             case 1:
             	
-            	java.util.Date date = new java.util.Date();
-            	String dateString = null;
-            	SimpleDateFormat sdfr = new SimpleDateFormat("dd/MMM/yyyy");
-            	   
-            	   try{
-            		dateString = sdfr.format(date);
-            	   }catch (Exception ex ){
-            		System.out.println(ex);
-            	   }
-            	   
-                
-            	
-            	//System.out.println("Received: " + clientSentence);
-                capitalizedSentence = dateString +'\n';
-                
-                
-            	
-            	break;
+                capitalizedSentence = LocalDateTime.now().toString() + "\n";
+                outToClient.writeBytes(capitalizedSentence);
+                System.out.println("Input: " + clientSentence);
+                break;
             	
             case 2:
-            	
-            	//System.out.println("Received: " + clientSentence);
-                capitalizedSentence = "you entered 2" + '\n';
-                
-            	
+
+            	capitalizedSentence = new Scanner(new FileInputStream("/proc/uptime")).next() + "\n";
+            	outToClient.writeBytes(capitalizedSentence);
+            	System.out.println("Input: " + clientSentence);
             	break;
             	
             case 3:
-	
+            	capitalizedSentence = new Scanner(new FileInputStream("/proc/meminfo")).next() + "\n";
+            	outToClient.writeBytes(capitalizedSentence);
+            	System.out.println("Input: " + clientSentence);
+            	
             	break;
 	
             case 4:
@@ -77,13 +65,9 @@ class TCPServer
             	
             default:
             	
-            	           
+            	break;           
             }
-            
-            
-            System.out.println("Received: " + clientSentence);
-            //capitalizedSentence = clientSentence.toUpperCase() + '\n';
-            outToClient.writeBytes(capitalizedSentence);
+
          }
       }
 }
