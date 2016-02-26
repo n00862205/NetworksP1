@@ -1,8 +1,7 @@
-
 import java.io.*;
 import java.net.*;
 
-//hostname is 192.168.100.111
+//host name is 192.168.100.111
 class TCPClient
 {
 	public static void main(String argv[]) throws Exception
@@ -13,7 +12,6 @@ class TCPClient
 			String hostname = argv[0];
 			String Option = "0";
 			String Results;
-			
 			
 			//BufferedReader to get user input
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
@@ -27,10 +25,10 @@ class TCPClient
 			//Get Server output 
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
-			while(Option != "7")
+			while(true)
 			{
 				//Option Menu
-				Option = "0";
+				//Option = "0";
 				System.out.println("1. Host current Date and Time");
 				System.out.println("2. Host uptime");
 				System.out.println("3. Host memory use");
@@ -41,10 +39,21 @@ class TCPClient
 				
 				//Get user Input
 				Option = inFromUser.readLine();
-				outToServer.writeBytes(Option + '\n');
-				Results = inFromServer.readLine();
-				System.out.println("FROM SERVER: " + Results);
+				if(Option.equals("1") || Option.equals("2") || Option.equals("3") || Option.equals("4")
+						|| Option.equals("5") || Option.equals("6") || Option.equals("7")){
+						outToServer.writeBytes(Option + '\n');
+					if(!Option.equals("7")){
+						while((Results = inFromServer.readLine()) != null && Results.length() != 0 ){
+							System.out.println(Results);
+						}
+					}
+					else
+						break;
+				}
+				else
+					System.out.println("Invalid Input");
 			}
+			
 			clientSocket.close();
 		}
 		else
