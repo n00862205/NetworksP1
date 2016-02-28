@@ -11,7 +11,7 @@ class TCPClient
 			//Declare variables
 			String hostname = argv[0];
 			String Option = "0";
-			Runnable rArray[] = new Runnable[75]; 
+			int num = 60;
 			
 			//BufferedReader to get user input
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
@@ -29,6 +29,7 @@ class TCPClient
 			{
 				//Option Menu
 				//Option = "0";
+				Runnable rArray[] = new Runnable[75];
 				System.out.println("1. Host current Date and Time");
 				System.out.println("2. Host uptime");
 				System.out.println("3. Host memory use");
@@ -45,13 +46,13 @@ class TCPClient
 					if(!Option.equals("7"))
 					{
 						Thread tArray[] = new Thread[75];
-						for(int i = 0; i < 5; i++)
+						for(int i = 0; i < num; i++)
 						{
-							rArray[i] = new MyThread(outToServer, inFromServer, Option  + "\n");
+							rArray[i] = new MyThread(outToServer, inFromServer, Option + "\n");
 							tArray[i] = new Thread(rArray[i]);
 						}
 						
-						for(int i = 0; i < 5; i++)
+						for(int i = 0; i < num; i++)
 						{
 							tArray[i].start();
 							//tArray[i].join();
@@ -92,11 +93,11 @@ class MyThread implements Runnable{
 	private final BufferedReader inFromServer;
 	private final String Option;
 	private long totalTime;
-	
+
 	   public MyThread(DataOutputStream ots, BufferedReader ifs, String o){
 	      outToServer = ots;
 	      inFromServer = ifs;
-	      Option = o;
+	      Option =  o;
 	   }
 
 	   public void run(){
