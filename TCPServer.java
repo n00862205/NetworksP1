@@ -1,33 +1,35 @@
 import java.io.*;
 import java.net.*;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Scanner;
+import java.util.*;
 
 class TCPServer
 {
-   public static void main(String argv[]) throws Exception
+
+
+public static void main(String argv[]) throws Exception
       {
 	   
-         String clientSentence;
-         String capitalizedSentence = null;
-         ServerSocket welcomeSocket = new ServerSocket(2541);
-         boolean exitFlag = false;
-         Socket connectionSocket = welcomeSocket.accept();
+        String clientSentence;
+        String capitalizedSentence = null;
+        ServerSocket welcomeSocket = new ServerSocket(2541);
+        boolean exitFlag = false;
+        Socket connectionSocket = welcomeSocket.accept();
          
-         BufferedReader inFromClient =
-                 new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-         String s;
+        Scanner inFromClient =
+                new Scanner(new InputStreamReader(connectionSocket.getInputStream()));
+        
+        
+        DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+        
+        String s;
  		Process p;
-		String localFinal = null;
+ 		String localFinal = null;
 		BufferedReader br;
-         while(!exitFlag)
-         {
-        	clientSentence = null;
-
-            DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-            clientSentence = inFromClient.readLine();
-            
+        while(!exitFlag)
+        {
+            clientSentence = inFromClient.next();
+   
             switch(Integer.parseInt(clientSentence)){
             
             case 1:
@@ -107,7 +109,6 @@ class TCPServer
             	break;
             	
             default:
-            	
             	break;           
             }
          }
@@ -122,6 +123,5 @@ class TCPServer
          {
         	 
          }
-         
       }
 }
