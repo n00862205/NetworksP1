@@ -11,7 +11,7 @@ class TCPClient
 			//Declare variables
 			String hostname = argv[0];
 			String Option = "0";
-			String Results;
+			Runnable rArray[] = new Runnable[75]; 
 			
 			//BufferedReader to get user input
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
@@ -40,25 +40,88 @@ class TCPClient
 				//Get user Input
 				Option = inFromUser.readLine();
 				if(Option.equals("1") || Option.equals("2") || Option.equals("3") || Option.equals("4")
-						|| Option.equals("5") || Option.equals("6") || Option.equals("7")){
-						outToServer.writeBytes(Option + '\n');
-					if(!Option.equals("7")){
-						while((Results = inFromServer.readLine()) != null && Results.length() != 0 ){
-							System.out.println(Results);
+						|| Option.equals("5") || Option.equals("6") || Option.equals("7"))
+				{
+					if(!Option.equals("7"))
+					{
+						Thread tArray[] = new Thread[75];
+						for(int i = 0; i < 5; i++)
+						{
+							rArray[i] = new MyThread(outToServer, inFromServer, Option  + "\n");
+							tArray[i] = new Thread(rArray[i]);
 						}
+						
+						for(int i = 0; i < 5; i++)
+						{
+							tArray[i].start();
+							//tArray[i].join();
+						}
+
 					}
 					else
+					{
+						outToServer.writeBytes(Option + '\n');
 						break;
+					}
+					
+					//outToServer.writeBytes(Option + '\n');
+//					if(!Option.equals("7"))
+//					{
+//						while((Results = inFromServer.readLine()) != null && Results.length() != 0 )
+//						{
+//							System.out.println(Results);
+//						}
+//					}
+//					else
+//						break;
 				}
 				else
 					System.out.println("Invalid Input");
 			}
-			
 			clientSocket.close();
 		}
 		else
 		{
-			
+			System.out.println("No agruments given");
 		}
-	}
+	}	
 }
+
+class MyThread implements Runnable{
+	private final DataOutputStream outToServer;
+	private final BufferedReader inFromServer;
+	private final String Option;
+	private long totalTime;
+	
+	   public MyThread(DataOutputStream ots, BufferedReader ifs, String o){
+	      outToServer = ots;
+	      inFromServer = ifs;
+	      Option = o;
+	   }
+
+	   public void run(){
+		   String Results;
+		   String FullResults = null;
+		   
+			long startTime = System.currentTimeMillis();
+			try {
+				outToServer.writeBytes(Option);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			try {
+				while((Results = inFromServer.readLine()) != null && Results.length() != 0 )
+				{
+					FullResults = FullResults + Results;
+					//System.out.println(Results);
+				}
+				long endTime = System.currentTimeMillis();
+				totalTime = endTime - startTime;
+				System.out.println(totalTime);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	   }
+	}
