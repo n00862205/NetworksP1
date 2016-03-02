@@ -11,7 +11,7 @@ class TCPClient
 			//Declare variables
 			String hostname = argv[0];
 			String Option = "0";
-			int num = 60;
+			int num = 2;
 			
 			//BufferedReader to get user input
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
@@ -27,8 +27,9 @@ class TCPClient
 			
 			while(true)
 			{
+				System.out.println(Thread.activeCount());
+				
 				//Option Menu
-				//Option = "0";
 				Runnable rArray[] = new Runnable[75];
 				System.out.println("1. Host current Date and Time");
 				System.out.println("2. Host uptime");
@@ -37,44 +38,58 @@ class TCPClient
 				System.out.println("5. Host current users");
 				System.out.println("6. Host running processes");
 				System.out.println("7. Quit");
+				System.out.println("8. Light Load");
+				System.out.println("9. Heavy Load");
 				
 				//Get user Input
 				Option = inFromUser.readLine();
 				if(Option.equals("1") || Option.equals("2") || Option.equals("3") || Option.equals("4")
-						|| Option.equals("5") || Option.equals("6") || Option.equals("7"))
+						|| Option.equals("5") || Option.equals("6") || Option.equals("7") || Option.equals("8") || Option.equals("9"))
 				{
-					if(!Option.equals("7"))
+					
+					if(Option.equals("8") || Option.equals("9"))
 					{
-						Thread tArray[] = new Thread[75];
+						if(Option.equals("8")){
+							Option = "1";
+						}
+						else
+							Option = "4";
+						
+						Thread tArray[] = new Thread[num];
+						long timeArr = 0;
+						
 						for(int i = 0; i < num; i++)
 						{
-							rArray[i] = new MyThread(outToServer, inFromServer, Option + "\n");
+							rArray[i] = new MyThread(outToServer, inFromServer, Option + "\n", i);
 							tArray[i] = new Thread(rArray[i]);
 						}
 						
 						for(int i = 0; i < num; i++)
 						{
 							tArray[i].start();
-							//tArray[i].join();
 						}
-
+						
+						for(int i = 0; i < num; i++)
+						{
+							System.out.println(i);
+							tArray[i].join();
+						}
+					}
+					else if(!Option.equals("7"))
+					{
+						String Results = null;
+						outToServer.writeBytes(Option + '\n');
+						while((Results = inFromServer.readLine()) != null && Results.length() != 0 )
+						{
+							System.out.println(Results);
+						}
 					}
 					else
 					{
 						outToServer.writeBytes(Option + '\n');
 						break;
 					}
-					
-					//outToServer.writeBytes(Option + '\n');
-//					if(!Option.equals("7"))
-//					{
-//						while((Results = inFromServer.readLine()) != null && Results.length() != 0 )
-//						{
-//							System.out.println(Results);
-//						}
-//					}
-//					else
-//						break;
+
 				}
 				else
 					System.out.println("Invalid Input");
@@ -92,12 +107,14 @@ class MyThread implements Runnable{
 	private final DataOutputStream outToServer;
 	private final BufferedReader inFromServer;
 	private final String Option;
+	private final int a;
 	private long totalTime;
 
-	   public MyThread(DataOutputStream ots, BufferedReader ifs, String o){
+	   public MyThread(DataOutputStream ots, BufferedReader ifs, String o, int x){
 	      outToServer = ots;
 	      inFromServer = ifs;
 	      Option =  o;
+	      a = x;
 	   }
 
 	   public void run(){
@@ -116,13 +133,21 @@ class MyThread implements Runnable{
 				{
 					FullResults = FullResults + Results;
 					//System.out.println(Results);
+					Results = null;
 				}
 				long endTime = System.currentTimeMillis();
 				totalTime = endTime - startTime;
-				System.out.println(totalTime);
+				System.out.println("I am Thread " + a + " and my time " + totalTime);
 				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
+			return;
+	   }
+	   
+	   public long getTotalTime()
+	   {
+		   return totalTime;
 	   }
 	}
