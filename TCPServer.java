@@ -14,13 +14,17 @@ public static void main(String argv[]) throws Exception
         String capitalizedSentence = null;
         ServerSocket welcomeSocket = new ServerSocket(2541);
         boolean exitFlag = false;
+
+    	
         Socket connectionSocket = welcomeSocket.accept();
-         
+        
         Scanner inFromClient =
                 new Scanner(new InputStreamReader(connectionSocket.getInputStream()));
         
         
         DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+        
+
         
         String s;
  		Process p;
@@ -28,21 +32,25 @@ public static void main(String argv[]) throws Exception
 		BufferedReader br;
         while(!exitFlag)
         {
+
             clientSentence = inFromClient.next();
-   
-            switch(Integer.parseInt(clientSentence)){
+            for(int i = 0; i < clientSentence.length(); i++)
+            {
+            	String sentence = String.valueOf(clientSentence.charAt(i));
+            	System.out.println("Input: " + sentence);
+            switch(Integer.parseInt(sentence)){
             
             case 1:
             	
                 capitalizedSentence = LocalDateTime.now().toString() + "\n" + "\n";
                 outToClient.writeBytes(capitalizedSentence);
-                System.out.println("Input: " + clientSentence);
+                
                 break;
             	
             case 2:
             	capitalizedSentence = new Scanner(new FileInputStream("/proc/uptime")).next() + "\n" + "\n";
             	outToClient.writeBytes(capitalizedSentence);
-            	System.out.println("Input: " + clientSentence);
+            	
             	break;
             	
             case 3:
@@ -56,7 +64,7 @@ public static void main(String argv[]) throws Exception
             	
             	capitalizedSentence = finalString + "\n";
             	
-            	System.out.println("Input: " + clientSentence);
+            	
             	outToClient.writeBytes(capitalizedSentence);
             	
             	
@@ -73,7 +81,7 @@ public static void main(String argv[]) throws Exception
         		p.waitFor();
         		capitalizedSentence = localFinal + "\n";
         		p.destroy();
-        		System.out.println("Input: " + clientSentence);
+        		
             	outToClient.writeBytes(capitalizedSentence);
             	break;
 	
@@ -86,7 +94,7 @@ public static void main(String argv[]) throws Exception
         		p.waitFor();
         		capitalizedSentence = localFinal + "\n";
         		p.destroy();
-        		System.out.println("Input: " + clientSentence);
+        		
             	outToClient.writeBytes(capitalizedSentence);
             	break;
 	
@@ -104,19 +112,21 @@ public static void main(String argv[]) throws Exception
             	break;
             	
             case 7:
-            	System.out.println("Input: " + clientSentence);
+            	
             	exitFlag = true;
             	break;
             	
             default:
             	break;           
             }
+            }
          }
          
-         try
+        try
          {
         	 connectionSocket.close();
         	 welcomeSocket.close();
+        	 inFromClient.close();
         	 
          }
          catch(Exception x)
