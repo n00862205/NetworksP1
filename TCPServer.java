@@ -6,132 +6,134 @@ import java.util.*;
 class TCPServer
 {
 
-
-public static void main(String argv[]) throws Exception
+   public static void main(String argv[]) throws Exception
+   {
+      ServerSocket welcomeSocket = new ServerSocket(2541);
+      Socket connectionSocket = welcomeSocket.accept();
+      int choice = 0;
+      Process p;
+      Runtime run;
+      BufferedReader br;
+      String clientSentence;
+      String command;
+      String line;
+      String localFinal = null;
+      boolean exitFlag = false;
+      
+      PrintWriter outToClient = new PrintWriter(connectionSocket.getOutputStream(), true);      
+      BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+      
+      while(!exitFlag)
       {
-	   
-        String clientSentence;
-        String capitalizedSentence = null;
-        ServerSocket welcomeSocket = new ServerSocket(2541);
-        boolean exitFlag = false;
-
-    	
-        Socket connectionSocket = welcomeSocket.accept();
-        
-        Scanner inFromClient =
-                new Scanner(new InputStreamReader(connectionSocket.getInputStream()));
-        
-        
-        DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-        
-
-        
-        String s;
- 		Process p;
- 		String localFinal = null;
-		BufferedReader br;
-        while(!exitFlag)
-        {
-
-            clientSentence = inFromClient.next();
-            for(int i = 0; i < clientSentence.length(); i++)
-            {
-            	String sentence = String.valueOf(clientSentence.charAt(i));
-            	System.out.println("Input: " + sentence);
-            switch(Integer.parseInt(sentence)){
-            
-            case 1:
-            	
-                capitalizedSentence = LocalDateTime.now().toString() + "\n" + "\n";
-                outToClient.writeBytes(capitalizedSentence);
-                
-                break;
-            	
-            case 2:
-            	capitalizedSentence = new Scanner(new FileInputStream("/proc/uptime")).next() + "\n" + "\n";
-            	outToClient.writeBytes(capitalizedSentence);
-            	
-            	break;
-            	
-            case 3:
-            	Scanner scanner = new Scanner(new FileInputStream("/proc/meminfo"));
-            	String finalString = null;
-            	
-            	while(scanner.hasNext())
-            	{
-            		finalString += scanner.nextLine() + "\n";
-            	}
-            	
-            	capitalizedSentence = finalString + "\n";
-            	
-            	
-            	outToClient.writeBytes(capitalizedSentence);
-            	
-            	
-            	break;
-	
-            case 4:
-            	
-
-        		p = Runtime.getRuntime().exec("netstat");
-        		br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        		
-        		while((s = br.readLine()) != null)
-        		localFinal += s + "\n";
-        		p.waitFor();
-        		capitalizedSentence = localFinal + "\n";
-        		p.destroy();
-        		
-            	outToClient.writeBytes(capitalizedSentence);
-            	break;
-	
-            case 5:
-        		p = Runtime.getRuntime().exec("w");
-        		br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        		
-        		while((s = br.readLine()) != null)
-        		localFinal += s + "\n";
-        		p.waitFor();
-        		capitalizedSentence = localFinal + "\n";
-        		p.destroy();
-        		
-            	outToClient.writeBytes(capitalizedSentence);
-            	break;
-	
-            case 6:
-            	p = Runtime.getRuntime().exec("ps aux");
-        		br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        		
-        		while((s = br.readLine()) != null)
-        		localFinal += s + "\n";
-        		p.waitFor();
-        		capitalizedSentence = localFinal + "\n";
-        		p.destroy();
-        		System.out.println("Input: " + clientSentence);
-            	outToClient.writeBytes(capitalizedSentence);
-            	break;
-            	
-            case 7:
-            	
-            	exitFlag = true;
-            	break;
-            	
-            default:
-            	break;           
-            }
-            }
-         }
+      
+         clientSentence = inFromClient.readLine();
+         choice = Integer.parseInt(clientSentence);
+         System.out.println(choice);
          
-        try
-         {
-        	 connectionSocket.close();
-        	 welcomeSocket.close();
-        	 inFromClient.close();
-        	 
+         switch(choice){
+            case 1:
+					run = Runtime.getRuntime();
+					command = "date";
+
+					p = run.exec(command);
+					br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+					localFinal = br.readLine();
+					outToClient.println(localFinal);
+
+					localFinal = "";
+					break;
+                        	
+            case 2:
+               run = Runtime.getRuntime();
+					command = "uptime";
+
+					p = run.exec(command);
+					br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+					localFinal = br.readLine();
+					outToClient.println(localFinal);
+
+					localFinal = "";
+					break;
+
+            case 3:
+               run = Runtime.getRuntime();
+					command = "free";
+
+					p = run.exec(command);
+					br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+					while ((line = br.readLine()) != null) 
+						localFinal = localFinal + line;
+
+					outToClient.println(localFinal);
+
+					localFinal = "";
+					break;
+         
+            case 4:
+               run = Runtime.getRuntime();
+					command = "netstat";
+
+					p = run.exec(command);
+					br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+					while ((line = br.readLine()) != null) 
+						localFinal = localFinal + line;
+
+					outToClient.println(localFinal);
+
+					localFinal = "";
+					break;
+         
+            case 5:
+               run = Runtime.getRuntime();
+					command = "who";
+
+					p = run.exec(command);
+					br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+					
+					while ((line = br.readLine()) != null) 
+						localFinal = localFinal + line;
+
+					outToClient.println(localFinal);
+
+					localFinal = "";
+					break;
+         
+            case 6:
+					run = Runtime.getRuntime();
+					command = "ps -e";
+
+					p = run.exec(command);
+					br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+					while ((line = br.readLine()) != null) 
+						localFinal = localFinal + line;
+
+					outToClient.println(localFinal);
+
+					localFinal = "";
+					break;
+         	
+            case 7:
+               try
+               {
+                  connectionSocket.close();
+                  welcomeSocket.close();
+                  inFromClient.close();
+                  outToClient.close();
+               }
+               catch(Exception x)
+               {
+                 	 
+               }
+
+               exitFlag = true;
+               break;
+         	
+            default:
+               break;           
          }
-         catch(Exception x)
-         {
-        	 
-         }
-      }
-}
+      }  
+   }
+} 
