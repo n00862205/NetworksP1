@@ -15,7 +15,6 @@ class TCPClient
       	//BufferedReader to get user input
          Scanner inFromUser = new Scanner(System.in);
          Scanner inFromUser2 = new Scanner(System.in);
-         
       	//Create Socket
          Socket clientSocket = new Socket(hostname, 2541);
       	
@@ -30,7 +29,8 @@ class TCPClient
             String Option = "0";
             int num = 1;
             double avgTime = 0;
-         	
+            int counter = 0;
+                    	
          	//Option Menu
             System.out.println("1. Host current Date and Time");
             System.out.println("2. Host uptime");
@@ -46,33 +46,42 @@ class TCPClient
             System.out.println("Enter Number of Threads");
          	
          	//Get number of threads
-            num = inFromUser2.nextInt();
+            try {
+               num = inFromUser2.nextInt();
+            } catch (Exception e){
+            
+            }
             
             if(Option.equals("1") || Option.equals("2") || Option.equals("3") || Option.equals("4")
             		|| Option.equals("5") || Option.equals("6"))
             {
-            	threadTime time = new threadTime(num);
-
-   				for(int i = 1; i < num + 1; i++) {
-   				
-   					// Create a new thread
-   					MyThread thread = new MyThread(outToServer, inFromServer, Option, time);
-   					thread.start();
-   					
-   					// Waits for all threads
-   					try	{
-   						thread.join();
-   					} catch(InterruptedException e) {
-   						System.out.println(e);
-   					}
-                  
-                  if(num == 1)
-                     System.out.println(thread.getResults());
-                  
-   					if ( (i % 5 == 0) || (i == 1) ) {
-   						avgTime = time.getAverage();
-   						System.out.println("Average time at " + i + " threads (in milliseconds): " + avgTime);
-   					}
+            		threadTime time = new threadTime(num);
+   	            	MyThread thread[] = new MyThread[75];
+   	            	
+   	   				for(int i = 0; i < num; i++) {
+   	   				
+   	   					// Create a new thread
+   	   					thread[i] = new MyThread(outToServer, inFromServer, Option, time);
+   	   					thread[i].start();
+   	   					
+   	   				}
+   	   				
+   	   				for(int i = 0; i < num; i++)
+   	   				{
+   	   					// Waits for all threads
+   	   					try	{
+   	   						thread[i].join();
+   	   					} catch(InterruptedException e) {
+   	   						System.out.println(e);
+   	   					}
+   	                  counter = i + 1;
+   	                  if(num == 1)
+   	                     System.out.println(thread[i].getResults());
+   	                  
+   	   					if ( (counter % 5 == 0) || (counter == 1) ) {
+   	   						avgTime = time.getAverage(counter);
+   	   						System.out.println("Average time at " + counter + " threads (in milliseconds): " + avgTime);
+   	   					}
    				}
             } else if(Option.equals("7")) {
                outToServer.println(Option);
@@ -83,8 +92,6 @@ class TCPClient
          }
          
          clientSocket.close();
-         inFromUser.close();
-         inFromUser2.close();
       }
       else
       {
@@ -108,30 +115,30 @@ class MyThread extends Thread {
    }
 
    public void run(){
-	   long totalTime;
-	  	long startTime;
+      long totalTime;
+		long startTime;
 		long endTime;
 		
 		startTime = System.currentTimeMillis();
 		
-		try {
-			outToServer.println(Option);
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+      try {
+         outToServer.println(Option);
+      } 
+      catch (Exception e) {
+         e.printStackTrace();
+      }
 		
-		try {
-			FullResults = inFromServer.readLine();
-			endTime = System.currentTimeMillis();
+	try {
+			String FullResults = inFromServer.readLine();
+		endTime = System.currentTimeMillis();
 			totalTime = endTime - startTime;
 			time.add(totalTime);
 		} catch(IOException e) {
 			System.out.println(e);
 		}
 
-	return;
-	}
+      return;
+   }
    
    public String getResults(){
       return FullResults;
@@ -152,10 +159,10 @@ class threadTime {
 	}
 	
 	
-	public double getAverage () {
+	public double getAverage (int num) {
 		double avg = 0;
 		
-		for (int i = 0; i < counter; i++)
+		for (int i = 0; i < num; i++)
 			avg += (double)times[i];
 	
 		avg = avg / (double)times.length;
